@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>¡Felices 20 Mara!</title>
+    
+    <!-- Fuentes premium de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- Librería profesional para el confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --pastel-blue: #b4d4ff;
+            --pastel-violet: #dcb6fc;
+            --dark-night: #1a0b2e;
+            --text-dark: #4a285e;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden; /* Evita scroll en todo el cuerpo, ideal para web apps móviles */
+            background-color: var(--dark-night);
+        }
+
+        /* === CONTENEDORES DE ESCENAS === */
+        .scene {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #scene1 {
+            z-index: 20;
+            background: radial-gradient(circle at center, #2a1542 0%, var(--dark-night) 100%);
+        }
+
+        #scene2 {
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            background: linear-gradient(135deg, var(--pastel-blue) 0%, var(--pastel-violet) 100%);
+        }
+
+        /* === PASTEL DE CUMPLEAÑOS === */
+        .cake-container {
+            position: relative;
+            margin-bottom: 40px;
+            transform: scale(1.1);
+        }
+
+        .cake-tier-bottom {
+            width: 220px;
+            height: 80px;
+            background: linear-gradient(to bottom, #fde4f2, var(--pastel-violet));
+            border-radius: 10px 10px 20px 20px;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1), 0 10px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .cake-tier-top {
+            width: 160px;
+            height: 70px;
+            background: linear-gradient(to bottom, #e6f0ff, var(--pastel-blue));
+            border-radius: 10px;
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: inset 0 -5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Detalles del glaseado */
+        .drip {
+            position: absolute;
+            background: #fff;
+            width: 20px;
+            height: 30px;
+            border-radius: 0 0 10px 10px;
+            top: 0;
+        }
+        .drip:nth-child(1) { left: 10%; height: 25px; }
+        .drip:nth-child(2) { left: 30%; height: 40px; }
+        .drip:nth-child(3) { left: 50%; height: 20px; }
+        .drip:nth-child(4) { left: 70%; height: 35px; }
+        .drip:nth-child(5) { left: 85%; height: 25px; }
+
+        /* Las velas 2 y 0 */
+        .candles-wrapper {
+            position: absolute;
+            bottom: 145px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .candle-num {
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5rem;
+            color: #ffd700;
+            text-shadow: 2px 2px 0px #d4af37, -1px -1px 0px #fff;
+            position: relative;
+        }
+
+        .flame {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 25px;
+            background: #ffaa00;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 15px #ff5500, 0 0 30px #ffaa00;
+            animation: flicker 0.5s infinite alternate;
+            transition: all 0.5s ease;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(0.95); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+        }
+
+        .smoke {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 1s ease;
+        }
+
+        /* Botón de soplar */
+        .btn-wish {
+            background: linear-gradient(135deg, var(--pastel-violet), var(--pastel-blue));
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.5);
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(220, 182, 252, 0.4);
+            animation: pulse-btn 2s infinite;
+            font-family: 'Quicksand', sans-serif;
+            margin-top: 20px;
+            z-index: 25;
+        }
+
+        @keyframes pulse-btn {
+            0% { transform: scale(1); box-shadow: 0 5px 20px rgba(220, 182, 252, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 5px 30px rgba(220, 182, 252, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 5px 20px rgba(220, 182, 252, 0.4); }
+        }
+
+        /* === ESCENA 2: COLLAGE FLOTANTE === */
+        .collage-container {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .polaroid-bg {
+            position: absolute;
+            background: #fff;
+            padding: 5px 5px 15px 5px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            border-radius: 3px;
+            animation: float-polaroid 6s infinite ease-in-out alternate;
+            opacity: 0.85;
+            width: 80px; /* Tamaño pequeño para el fondo */
+        }
+
+        .polaroid-bg img {
+            width: 100%;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        /* Distribución de las 12 fotos por los bordes para móviles */
+        .p1 { top: 2%; left: 2%; animation-delay: 0s; transform: rotate(-10deg); }
+        .p2 { top: 5%; right: 2%; animation-delay: 1s; transform: rotate(15deg); }
+        .p3 { top: 18%; left: -5%; animation-delay: 2s; transform: rotate(8deg); }
+        .p4 { top: 22%; right: -2%; animation-delay: 0.5s; transform: rotate(-12deg); }
+        .p5 { top: 35%; left: 5%; animation-delay: 1.5s; transform: rotate(-5deg); }
+        .p6 { top: 40%; right: 5%; animation-delay: 2.5s; transform: rotate(20deg); }
+        .p7 { top: 55%; left: -2%; animation-delay: 0.3s; transform: rotate(10deg); }
+        .p8 { top: 60%; right: -5%; animation-delay: 1.2s; transform: rotate(-8deg); }
+        .p9 { bottom: 20%; left: 8%; animation-delay: 2.1s; transform: rotate(-15deg); }
+        .p10 { bottom: 18%; right: 5%; animation-delay: 0.8s; transform: rotate(12deg); }
+        .p11 { bottom: 2%; left: 2%; animation-delay: 1.7s; transform: rotate(5deg); }
+        .p12 { bottom: 5%; right: 2%; animation-delay: 2.8s; transform: rotate(-18deg); }
+
+        @keyframes float-polaroid {
+            0% { margin-top: 0px; }
+            100% { margin-top: -15px; }
+        }
+
+        /* === LA CARTA 3D CON GLASSMORPHISM === */
+        .card-wrapper {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            height: 80vh;
+            max-height: 650px;
+            perspective: 1500px;
+            z-index: 10;
+        }
+
+        .card-inner {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            transform-origin: left center;
+        }
+
+        /* Portada */
+        .card-front {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(220, 182, 252, 0.8));
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+            cursor: pointer;
+            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .card-front h1 {
+            font-family: 'Dancing Script', cursive;
+            color: var(--text-dark);
+            font-size: 3.5rem;
+            text-align: center;
+            margin: 0;
+            text-shadow: 2px 2px 5px rgba(255,255,255,0.8);
+        }
+
+        .tap-instruction {
+            margin-top: 20px;
+            background: var(--text-dark);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            animation: pulse-btn 2s infinite;
+        }
+
+        /* Interior Glassmorphism */
+        .card-inside {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            z-index: 1;
+            padding: 25px 20px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        /* Scrollbar suave */
+        .card-inside::-webkit-scrollbar { width: 5px; }
+        .card-inside::-webkit-scrollbar-thumb { background: var(--pastel-violet); border-radius: 5px; }
+
+        .card-inside h2 {
+            font-family: 'Dancing Script', cursive;
+            color: var(--text-dark);
+            text-align: center;
+            font-size: 2.5rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        /* IMAGEN CENTRAL DESTACADA */
+        .central-photo {
+            width: 100%;
+            background: white;
+            padding: 10px 10px 30px 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-bottom: 25px;
+            transform: rotate(-2deg);
+        }
+        
+        .central-photo img {
+            width: 100%;
+            height: auto;
+            border-radius: 3px;
+        }
+
+        .central-photo p {
+            margin: 10px 0 0 0;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .card-inside p.message {
+            color: var(--text-dark);
+            line-height: 1.6;
+            font-size: 1.05rem;
+            text-align: justify;
+            font-weight: 600;
+        }
+
+        .card-inside .firma {
+            text-align: right;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-top: 20px;
+        }
+
+        /* CLASE DE APERTURA */
+        .is-open .card-front {
+            transform: rotateY(-110deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ESTILO PARA FALLBACKS DE IMÁGENES (Anti-errores) */
+        .fallback-img {
+            width: 100%;
+            height: 100%;
+            min-height: 80px;
+            background: linear-gradient(135deg, var(--pastel-blue), var(--pastel-violet));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.8rem;
+            border-radius: 2px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .central-photo .fallback-img { min-height: 250px; font-size: 1.5rem; }
+
+    </style>
+</head>
+<body>
+
+    <!-- ESCENA 1: LA NOCHE Y EL PASTEL -->
+    <div id="scene1" class="scene">
+        <div class="cake-container">
+            <!-- Llamas y Velas -->
+            <div class="candles-wrapper">
+                <div class="candle-num">
+                    2
+                    <div class="flame" id="flame1"></div>
+                    <div class="smoke" id="smoke1"></div>
+                </div>
+                <div class="candle-num">
+                    0
+                    <div class="flame" id="flame2"></div>
+                    <div class="smoke" id="smoke2"></div>
+                </div>
+            </div>
+            
+            <!-- Torta -->
+            <div class="cake-tier-top">
+                <div class="drip"></div><div class="drip"></div><div class="drip"></div>
+                <div class="drip"></div><div class="drip"></div>
+            </div>
+            <div class="cake-tier-bottom">
+                <div class="drip"></div><div class="drip"></div><div class="drip"></div>
+                <div class="drip"></div><div class="drip"></div>
+            </div>
+        </div>
+
+        <button class="btn-wish" onclick="soplarVelas()">✨ Pedir un deseo y soplar ✨</button>
+    </div>
+
+    <!-- ESCENA 2: EL DÍA Y LA CARTA -->
+    <div id="scene2" class="scene">
+        
+        <!-- Collage Flotante de Fondo (12 Imágenes) -->
+        <div class="collage-container">
+            <div class="polaroid-bg p1"><img src="collage1.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 1</div>'"></div>
+            <div class="polaroid-bg p2"><img src="collage2.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 2</div>'"></div>
+            <div class="polaroid-bg p3"><img src="collage3.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 3</div>'"></div>
+            <div class="polaroid-bg p4"><img src="collage4.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 4</div>'"></div>
+            <div class="polaroid-bg p5"><img src="collage5.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 5</div>'"></div>
+            <div class="polaroid-bg p6"><img src="collage6.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 6</div>'"></div>
+            <div class="polaroid-bg p7"><img src="collage7.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 7</div>'"></div>
+            <div class="polaroid-bg p8"><img src="collage8.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 8</div>'"></div>
+            <div class="polaroid-bg p9"><img src="collage9.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 9</div>'"></div>
+            <div class="polaroid-bg p10"><img src="collage10.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 10</div>'"></div>
+            <div class="polaroid-bg p11"><img src="collage11.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 11</div>'"></div>
+            <div class="polaroid-bg p12"><img src="collage12.jpeg" onerror="this.outerHTML='<div class=\'fallback-img\'>FOTO 12</div>'"></div>
+        </div>
+
+        <!-- La Carta 3D -->
+        <div class="card-wrapper">
+            <div class="card-inner" id="cardInner">
+                
+                <!-- Frontal (Tapa) -->
+                <div class="card-face card-front" onclick="abrirTarjeta()">
+                    <h1>Felices 20<br>Mara!</h1>
+                    <div class="tap-instruction">Toca para abrir 💌</div>
+                </div>
+
+                <!-- Interior (Mensaje y Foto Central) -->
+                <div class="card-face card-inside">
+                    
+                    <!-- FOTO CENTRAL DESTACADA -->
+                    <div class="central-photo">
+                        <video id="videoSorpresa" src="video-central.mp4" playsinline controls style="width: 100%; height: auto; border-radius: 3px;"></video>
+                        <p>Tú y yo 💖</p>
+                    </div>
+
+                    <h2>¡Feliz cumpleaños!</h2>
+                    <p class="message">
+                        ¡Felices 20, Maraaaaa! 🥳 Pásala muy, muy bonito. Que este nuevo año esté lleno de alegrías y cosas bonitasss.
+                        <br><br>
+                        Mi mayor deseo para ti siempre será que puedas cumplir cada una de las cosas que te propongas. Que te vaya bien en todo, todo lo que hagas, en tu carrera y en todo aspecto, porque yo sé que tú puedes con todoo y siempre lo has demostrado. Y sobre todo, que siempre, siempre estés bien de salud. ✨
+                        <br><br>
+                        Sé que ahora ya no hablamos tanto como lo hacíamos antes, tal vez porque cada una está enfocada en lo suyo, pero quiero que sepas que siempre estaré ahí para ti, para cualquier cosa que necesites...siempre. Gracias por los años que compartimos juntas, definitivamente fue hermoso compartir esta etapa contigo y con las chicas. ❤️
+                        <br><br>
+                        Pásala bonito hoy en compañía de las personas que más te quieren. ¡Que estos 20 sean los nuevos 15! Y que sigas disfrutando la vida al máximo, porque al final solo seremos jóvenes una vez en la vida, sisiis. 🤭
+                    </p>
+                    <p class="firma">Te quiero muchísimooo,<br>¡besosss! 💕</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function soplarVelas() {
+            // 1. Apagar llamas
+            document.getElementById('flame1').style.display = 'none';
+            document.getElementById('flame2').style.display = 'none';
+            
+            // Mostrar un poquito de humo falso
+            const smoke1 = document.getElementById('smoke1');
+            const smoke2 = document.getElementById('smoke2');
+            smoke1.style.opacity = '1'; smoke1.style.transform = 'translateY(-30px) scale(2)';
+            smoke2.style.opacity = '1'; smoke2.style.transform = 'translateY(-30px) scale(2)';
+
+            // 2. Disparar Confeti Premium (Colores Pastel)
+            const duration = 2000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#b4d4ff', '#dcb6fc', '#ffffff', '#ffd700']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#b4d4ff', '#dcb6fc', '#ffffff', '#ffd700']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            // 3. Transición de Noche a Día (Escena 1 a Escena 2)
+            setTimeout(() => {
+                document.getElementById('scene1').style.opacity = '0';
+                document.getElementById('scene1').style.pointerEvents = 'none';
+                
+                document.getElementById('scene2').style.opacity = '1';
+                document.getElementById('scene2').style.pointerEvents = 'all';
+            }, 2000);
+        }
+
+        function abrirTarjeta() {
+            // Activar la animación 3D de la carta
+            document.getElementById('cardInner').classList.add('is-open');
+            
+            let miVideo = document.getElementById('videoSorpresa');
+            if (miVideo) {
+                // Manejo seguro de la promesa de reproducción
+                let playPromise = miVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Aviso: El video no se pudo reproducir automáticamente. Es posible que falte el archivo mp4.", error);
+                    });
+                }
+            }
+            
+            // Un pequeño confeti extra al abrir como sorpresa final
+            setTimeout(() => {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#b4d4ff', '#dcb6fc']
+                });
+            }, 500);
+        }
+    </script>
+</body>
+</html>
